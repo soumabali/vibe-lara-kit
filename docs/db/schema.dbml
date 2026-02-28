@@ -1,0 +1,114 @@
+Project vibe_starterkit {
+  database_type: "PostgreSQL"
+  Note: "Domain-agnostic starter schema"
+}
+
+Table users {
+  id bigint [pk, increment]
+  name varchar
+  email varchar [unique, not null]
+  email_verified_at timestamp
+  password varchar [not null]
+  remember_token varchar
+  is_admin boolean [default: false]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table personal_access_tokens {
+  id bigint [pk, increment]
+  tokenable_type varchar [not null]
+  tokenable_id bigint [not null]
+  name varchar [not null]
+  token varchar [unique, not null]
+  abilities text
+  last_used_at timestamp
+  expires_at timestamp
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (tokenable_type, tokenable_id)
+  }
+}
+
+Table roles {
+  id bigint [pk, increment]
+  name varchar [not null]
+  guard_name varchar [not null]
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (name, guard_name) [unique]
+  }
+}
+
+Table permissions {
+  id bigint [pk, increment]
+  name varchar [not null]
+  guard_name varchar [not null]
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (name, guard_name) [unique]
+  }
+}
+
+Table model_has_permissions {
+  permission_id bigint [not null]
+  model_type varchar [not null]
+  model_id bigint [not null]
+
+  indexes {
+    (permission_id, model_id, model_type) [pk]
+    (model_id, model_type)
+  }
+}
+
+Table model_has_roles {
+  role_id bigint [not null]
+  model_type varchar [not null]
+  model_id bigint [not null]
+
+  indexes {
+    (role_id, model_id, model_type) [pk]
+    (model_id, model_type)
+  }
+}
+
+Table role_has_permissions {
+  permission_id bigint [not null]
+  role_id bigint [not null]
+
+  indexes {
+    (permission_id, role_id) [pk]
+  }
+}
+
+Table activity_log {
+  id bigint [pk, increment]
+  log_name varchar
+  description text [not null]
+  subject_type varchar
+  event varchar
+  subject_id bigint
+  causer_type varchar
+  causer_id bigint
+  properties text
+  batch_uuid varchar
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (log_name)
+    (subject_type, subject_id)
+    (causer_type, causer_id)
+  }
+}
+
+Ref: model_has_permissions.permission_id > permissions.id [delete: cascade]
+Ref: model_has_roles.role_id > roles.id [delete: cascade]
+Ref: role_has_permissions.permission_id > permissions.id [delete: cascade]
+Ref: role_has_permissions.role_id > roles.id [delete: cascade]
