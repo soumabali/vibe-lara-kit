@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Running pre-commit quality gate..."
+composer lint
+composer analyse
+./scripts/docs-guard.sh
+composer test
