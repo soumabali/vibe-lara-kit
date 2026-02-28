@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Running pre-push quality gate..."
+./scripts/quality-gate.sh
